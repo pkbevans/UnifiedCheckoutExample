@@ -1,17 +1,17 @@
 <?php
-const KEYS_PATH =  "/ppSecure/";   // Replace with path to the PeRestLibKeys file.
+const KEYS_PATH =  "/";   // Replace with path to the PeRestLibKeys file.
 include_once $_SERVER["DOCUMENT_ROOT"] . KEYS_PATH. "PeRestLibKeys.php";
 // You need a PeRestLibKeys.php file in this format, with REST keys matching the MID value
 // $keys = [
-//    "pemid03" => [
+//    "<<YOUR MID>>" => [
 //        'key_id' => "fa4143be-1234-436d-aa5c-f8fbbb4b6bfd",
 //        'secret_key'=> "rzabWA0SFyDXlVY/dTEA123456shJm/5IaNElBachZk="
 //    ]
 // ];
 
-const MID = "pemid03";      // Replace with MID (Can be PORTFOLIO or Account-level)
+const MID = "<<YOUR MID>>";      // Replace with MID (Can be PORTFOLIO or Account-level)
 const CHILD_MID = "";       // Replace with Transacting MID if using PORTFOLIO or Account-level mid in MID
-const PRODUCTION_TARGET_ORIGIN =  "bondevans.com";  // Replace with Production URL for non-localhost testing
+const PRODUCTION_TARGET_ORIGIN =  "mytest.com";  // Replace with Production URL for non-localhost testing
 const LOCALHOST_TARGET_ORIGIN =  "site.test";   // Replace with your localhost HTTPS alias.  MUST BE HTTPS
 // Endpoints
 const REQUEST_HOST =  "apitest.cybersource.com";  // CYBS TEST endpoint
