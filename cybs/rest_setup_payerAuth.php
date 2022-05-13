@@ -16,7 +16,7 @@ $request->tokenInformation = $tokenInformation;
 $requestBody = json_encode($request);
 
 try{
-    $result = ProcessRequest(PORTFOLIO, API_RISK_V1_AUTHENTICATION_SETUPS, METHOD_POST, $requestBody, MID, AUTH_TYPE_SIGNATURE );
+    $result = ProcessRequest(MID, API_RISK_V1_AUTHENTICATION_SETUPS, METHOD_POST, $requestBody, CHILD_MID, AUTH_TYPE_SIGNATURE );
     echo json_encode($result);
 } catch (Exception $exception) {
     echo "ERROR";

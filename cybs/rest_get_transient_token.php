@@ -5,5 +5,5 @@ $token=$incoming->token;
 // $token=$_REQUEST['token'];
 
 $api = API_PAYMENT_DETAILS . "/". $token;
-$result = ProcessRequest(PORTFOLIO, $api, METHOD_GET, "", MID, AUTH_TYPE_SIGNATURE );
+$result = ProcessRequest(MID, $api, METHOD_GET, "", CHILD_MID, AUTH_TYPE_SIGNATURE );
 echo json_encode($result);

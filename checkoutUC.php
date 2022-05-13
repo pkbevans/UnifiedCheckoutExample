@@ -1,12 +1,4 @@
-<?php
-include "cybs/rest_generate_capture_context.php";
-$defaultEmail="";
-if(isset($_REQUEST['email']) && !empty($_REQUEST['email'])) {
-    $defaultEmail = $_REQUEST['email'];
-}else{
-    $defaultEmail = $defaultPaymentInstrument->billTo->email;
-}
-?>
+<?php include "cybs/rest_generate_capture_context.php";?>
 <!DOCTYPE html>
 <html lang="en-GB">
     <head>
@@ -37,28 +29,7 @@ if(isset($_REQUEST['email']) && !empty($_REQUEST['email'])) {
                             <span><?php echo "£" . $_REQUEST['amount'];?></span>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-3">
-                            <h5>Email:</h5>
-                        </div>
-                        <div class="col-9">
-                            <div id="emailSection">
-                                <div id="emailText"><?php echo $defaultEmail;?></div>
-                            </div>
-                            <form id="emailForm" class="needs-validation" novalidate style="display:none">
-                                <div class="row">
-                                    <div class="col-9">
-                                        <div class="form-group mb-3">
-                                            <input id="bill_to_email" type="email" class="form-control" value="<?php echo $defaultEmail;?>" placeholder="Enter email" required>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
                     <div id="summary_billTo" style="display:none">
-                        <hr class="solid">
-                        <h5 class="card-title">Payment Card</h5>
                         <p id="billToText" class="card-text small" style="max-height: 999999px;"></p>
                     </div>
                 </div>
@@ -71,12 +42,10 @@ if(isset($_REQUEST['email']) && !empty($_REQUEST['email'])) {
                 </div>
                 <BR>
                 <div id="authMessage" class="align-self-center">
-                    <div class="d-flex justify-content-center">
-                        <div class="card">
-                            <div class="card-body" style="width: 90vw; max-height: 999999px;">
-                                <h5 class="card-title">Authorising</h5>
-                                <p class="card-text small">We are authorizing your payment. Please be patient.  Please do not press BACK or REFRESH.</p>
-                            </div>
+                    <div class="card">
+                        <div class="card-body" style="width: 90vw; max-height: 999999px;">
+                            <h5 class="card-title">Authorising</h5>
+                            <p class="card-text small">We are authorizing your payment. Please be patient.  Please do not press BACK or REFRESH.</p>
                         </div>
                     </div>
                 </div>
@@ -87,14 +56,17 @@ if(isset($_REQUEST['email']) && !empty($_REQUEST['email'])) {
                 </form>
             </div>
             <div id="resultSection" style="display: none">
-                <div id="resultText"></div>
-                <div class="row">
-                    <div class="col-12">
-                        <button type="button" class="btn btn-primary" onclick="window.open('index.php', '_parent')">Continue shopping</button>
+                <div class="card">
+                    <div class="card-body" style="width: 90vw; max-height: 999999px;">
+                        <div id="resultText"></div>
+                        <div class="row">
+                            <div class="col-12">
+                                <button type="button" class="btn btn-primary" onclick="window.open('index.php', '_parent')">Continue shopping</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
         </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
     <script src="<?php echo $clientLibrary;?>"></script>
@@ -102,12 +74,11 @@ if(isset($_REQUEST['email']) && !empty($_REQUEST['email'])) {
     <script>
     let orderDetails = {
             referenceNumber: "<?php echo $_REQUEST['reference_number'];?>",
-            amount: "<?php echo $_REQUEST['amount'];?>",
-            currency: "<?php echo $_REQUEST['currency'];?>",
-            local: <?php echo isset($_REQUEST['local']) && $_REQUEST['local'] === "true"?"true":"false";?>,
+            amount: "",
+            currency: "",
             flexToken: "",
             maskedPan: "",
-            storeCard: false,
+            email: "",
             capture: <?php echo isset($_REQUEST['autoCapture']) && $_REQUEST['autoCapture'] === "true"?"true":"false";?>
         };
 
@@ -138,8 +109,8 @@ if(isset($_REQUEST['email']) && !empty($_REQUEST['email'])) {
         })
         .catch(function(error){
             console.error(error);
-            // TODO feedback to user
-            location.reload();
+            // Feedback to user
+            window.alert(error);
         });
     });
     function getJTI(jwt) {
@@ -172,9 +143,16 @@ if(isset($_REQUEST['email']) && !empty($_REQUEST['email'])) {
                 console.log("\nTransient Token:\n" + JSON.stringify(res, undefined, 2));
                 // If OK, set up device collection
                 if (res.responseCode === 200){
+                    orderDetails.amount=res.response.orderInformation.amountDetails.totalAmount;
+                    orderDetails.currency=res.response.orderInformation.amountDetails.currency;
+                    orderDetails.maskedPan=res.response.paymentInformation.card.number;
+                    orderDetails.email=res.response.orderInformation.billTo.email;
+                    // Show summary of card/billing details
                     document.getElementById('billToText').innerHTML = styleCardDetails(res.response);
                     document.getElementById('summary_billTo').style.display = 'block';
                     setUpPayerAuth();
+                } else if (res.responseCode === 404){
+                    onFinish2("GETTOKEN", status, "", false, false, res.responseCode, res.response.reason, res.response.message);
                 } else {
                     // 500 System error or anything else
                     onFinish2("GETTOKEN", status, "", false, false, res.responseCode, res.response.errorInformation.reason, res.response.errorInformation.message);
@@ -184,8 +162,6 @@ if(isset($_REQUEST['email']) && !empty($_REQUEST['email'])) {
     }
     function onFinish2(apiCalled, status, requestId, httpResponseCode, errorReason, errorMessage) {
         document.getElementById('authSection').style.display = "none";
-        // document.getElementById('inputSection').style.display = "none";
-        // document.getElementById('confirmSection').style.display = "none";
         let finish = {
             "referenceNumber": orderDetails.referenceNumber,
             "amount": orderDetails.amount,
@@ -242,6 +218,18 @@ if(isset($_REQUEST['email']) && !empty($_REQUEST['email'])) {
             alt = "Amex card logo";
         }
         html =
+        "<hr class=\"solid\">\n" +
+        "<div class=\"row\">\n" +
+            "<div class=\"col-3\">\n" +
+                "<h5>Email:</h5>\n" +
+            "</div>\n" +
+            "<div class=\"col-9\">\n" +
+                "<div id=\"emailSection\">\n" +
+                    "<div id=\"emailText\">" + paymentDetails.orderInformation.billTo.email + "</div>\n" +
+                "</div>\n" +
+            "</div>\n" +
+        "</div>\n" +
+        "<h5 class=\"card-title\">Payment Card</h5>\n" +
                 "<div class=\"row\">\n" +
                     "<div class=\"col-3\">\n"+
                         "<img src=\"" + img + "\" class=\"img-fluid\" alt=\"" + alt + "\">"+

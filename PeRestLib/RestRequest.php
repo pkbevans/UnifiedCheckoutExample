@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'].'/payPage/PeRestLib/RestConstants.php';
+require_once $_SERVER['DOCUMENT_ROOT'].'/unifiedCheckout/PeRestLib/RestConstants.php';
 
 // HTTP POST request
 function ProcessRequest($mid, $resource, $method, $payload, $child = null, $authentication = AUTH_TYPE_SIGNATURE )
@@ -51,7 +51,7 @@ function ProcessRequest($mid, $resource, $method, $payload, $child = null, $auth
 
     $result = new stdClass();
     $result->url = $url;
-    $result->mid = $mid . (is_null($child)?"":"/".$child);
+    $result->mid = $mid . (empty($child)?"":"/".$child);
     $result->method = $method;
     $result->request = json_decode($payload);
     $result->responseCode = $response_info['http_code'];

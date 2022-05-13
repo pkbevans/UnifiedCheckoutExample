@@ -25,11 +25,8 @@ try {
     if($incoming->paAction == "CONSUMER_AUTHENTICATION"){
         // PA Enrollment check
         $challengeCode = "01";
-        if($incoming->order->local){
-            $returnUrl = "https://site.test/unifiedCheckout/redirect.php";
-        }else{
-            $returnUrl = TARGET_ORIGIN . "/unifiedCheckout/redirect.php";
-        }
+        // $returnUrl = ($incoming->order->local?LOCALHOST_TARGET_ORIGIN:PRODUCTION_TARGET_ORIGIN) . "/unifiedCheckout/redirect.php";
+        $returnUrl = "https://" . (strstr($_SERVER['HTTP_HOST'],LOCALHOST_TARGET_ORIGIN)?LOCALHOST_TARGET_ORIGIN:PRODUCTION_TARGET_ORIGIN) . "/unifiedCheckout/redirect.php";
         $consumerAuthenticationInformation = [
             "challengeCode"=> $challengeCode,
             "referenceId" => $incoming->referenceID,
@@ -46,7 +43,7 @@ try {
     $request->consumerAuthenticationInformation = $consumerAuthenticationInformation;
 
     $requestBody = json_encode($request);
-    $result = ProcessRequest(PORTFOLIO, API_PAYMENTS, METHOD_POST, $requestBody, MID, AUTH_TYPE_SIGNATURE );
+    $result = ProcessRequest(MID, API_PAYMENTS, METHOD_POST, $requestBody, CHILD_MID, AUTH_TYPE_SIGNATURE );
     echo json_encode($result);
 } catch (Exception $exception) {
     echo(json_encode($exception));

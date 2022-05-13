@@ -1,18 +1,5 @@
 <?php
-if(strstr($_SERVER['HTTP_HOST'],"site.test")){
-    $local = "true";
-}else{
-    $local = "false";
-}
-//////////////////////FUNCTIONS
-function getCookie($name){
-    if(isset($_COOKIE[$name])){
-        return $_COOKIE[$name];
-    } else{
-        return "";
-    }
-}
-
+require_once $_SERVER['DOCUMENT_ROOT'].'/unifiedCheckout/PeRestLib/RestConstants.php';
 ?>
 <!DOCTYPE html>
 <html lang="en-GB">
@@ -32,11 +19,8 @@ function getCookie($name){
             <form class="needs-validation" id="checkout_form" name="checkout" method="POST" target="checkout_iframe" action="checkoutUC.php" novalidate >
                 <label for="amount" class="form-label">Amount</label><input id="amount" class="form-control" type="text" name="amount" value="63.99" required/>
                 <label for="reference_number" class="form-label">Order Reference</label><input id="reference_number" class="form-control" type="text" name="reference_number" value="<?php echo uniqid("UC", false);?>" required/>
-                <label for="email" class="form-label">Email</label><input id="email" class="form-control" type="email" name="email" value="pkbevans@gmail.com" />
-                <label for="customer_reference" class="form-label">Merchants Customer Reference</label><input id="customerRef" class="form-control" type="text" name="customerRef" value="" />
-                <!--<label for="customerToken" class="form-label">Customer Token</label><input id="customerToken" class="form-control" type="text" name="customerToken" value=""/>-->
+                <label for="email" class="form-label">Email</label><input id="email" class="form-control" type="email" name="email" value="test@gmail.com" />
                 <input id="currency" type="hidden" name="currency" value="GBP"/>
-                <label for="local" class="form-label">Local</label><input id="local" class="form-control" type="text" name="local" value="<?php echo $local; ?>"/>
                 <label for="autoCapture" class="form-label">Auto Capture</label>
                 <select id="autoCapture" class="form-select" name="autoCapture">
                     <option value="true" selected>Yes</option>
